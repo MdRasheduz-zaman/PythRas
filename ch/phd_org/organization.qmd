@@ -369,11 +369,11 @@ The ONT protocol for direct cDNA sequencing also provides with the information a
 
 ![cDNA conversion mechanism](../../Video/cDNA_mechanism.gif){width="100%"}
 
-### DNase I treatment  
+### DNase I treatment
 
-### Removal of DNase I  
+### Removal of DNase I
 
-### Polyadenylating using E. coli poly(A) polymerase  
+### Polyadenylating using E. coli poly(A) polymerase
 
 ```{r, echo=FALSE}
 polyadenylation_protocol <- data.frame(
@@ -450,7 +450,7 @@ knitr::kable(polyadenylation_protocol, format = "html", escape = FALSE, col.name
   add_header_above(setNames(c(1, 1, 1), c("Step", "Mechanistic Details", "Troubleshooting")))
 ```
 
-### Reverse Transcription and Strand-switching  
+### Reverse Transcription and Strand-switching
 
 ```{r, echo=FALSE}
 rt_ss <- data.frame(
@@ -514,7 +514,7 @@ knitr::kable(rt_ss, format = "html", escape = FALSE, col.names = NULL) %>%
   add_header_above(setNames(c(1, 1, 1), c("Step", "Mechanistic Details", "Troubleshooting")))
 ```
 
-### RNA Degradation and Second Strand Synthesis  
+### RNA Degradation and Second Strand Synthesis
 
 ```{r, echo=FALSE}
 RNA_deg <- data.frame(
@@ -721,11 +721,11 @@ knitr::kable(seq_diff, format = "html", escape = FALSE) %>%
   #add_header_above(c("Step" = 1, "Mechanistic Details" = 1, "Comments for Troubleshooting" = 1))
 ```
 
-### DNA Repair and End-prep  
-#### End-prep for cDNA sequencing  
-  
-**IMPORTANT**
-If you have prepared your own cDNA instead of performing reverse transcription using the Direct cDNA Sequencing Kit, please start this step with 70-200 ng cDNA in 20 µl Nuclease-free water.  
+### DNA Repair and End-prep
+
+#### End-prep for cDNA sequencing
+
+**IMPORTANT** If you have prepared your own cDNA instead of performing reverse transcription using the Direct cDNA Sequencing Kit, please start this step with 70-200 ng cDNA in 20 µl Nuclease-free water.
 
 ```{r, echo=FALSE}
 end_prep <- data.frame(
@@ -795,9 +795,10 @@ knitr::kable(end_prep, format = "html", escape = FALSE, col.names = NULL) %>%
   row_spec(1:3, background = "#f2f2f2") %>%
   add_header_above(setNames(c(1, 1, 1), c("Step", "Mechanistic Details", "Troubleshooting")))
 ```
-Take forward 30 µl of end-prepped cDNA into adapter ligation.  
 
-### Adapter Ligation for cDNA  
+Take forward 30 µl of end-prepped cDNA into adapter ligation.
+
+### Adapter Ligation for cDNA
 
 ```{r, echo=FALSE}
 ad_lig_cDNA <- data.frame(
@@ -834,10 +835,11 @@ knitr::kable(ad_lig_cDNA, format = "html", escape = FALSE, col.names = NULL) %>%
   column_spec(3, width = "20%") %>%
   add_header_above(setNames(c(1, 1, 1), c("Step", "Mechanistic Details", "Troubleshooting")))
 ```
-**Output: Adapted and tethered DNA library.**  
 
-### AMPure XP bead binding  
-  
+**Output: Adapted and tethered DNA library.**
+
+### AMPure XP bead binding
+
 ```{r, echo=FALSE}
 AMPure <- data.frame(
   `Step` = c("1. Resuspend the AMPure XP beads by vortexing.",
@@ -891,9 +893,10 @@ knitr::kable(AMPure, format = "html", escape = FALSE, col.names = NULL) %>%
   row_spec(1:3, background = "#f2f2f2") %>%
   add_header_above(setNames(c(1, 1, 1), c("Step", "Mechanistic Details", "Troubleshooting")))
 ```
-**The prepared library is used for loading onto the flow cell. Store the library on ice until ready to load.**  
 
-### Priming and Loading on SpotON flowCell  
+**The prepared library is used for loading onto the flow cell. Store the library on ice until ready to load.**
+
+### Priming and Loading on SpotON flowCell
 
 ```{r, echo=FALSE}
 loading <- data.frame(
@@ -971,12 +974,11 @@ knitr::kable(loading, format = "html", escape = FALSE, col.names = NULL) %>%
   row_spec(1:3, background = "#f2f2f2") %>%
   add_header_above(setNames(c(1, 1, 1), c("Step", "Mechanistic Details", "Troubleshooting")))
 ```
-Close the device lid and set up a sequencing run on MinKNOW.  
+
+Close the device lid and set up a sequencing run on MinKNOW.
 
 ## Troubleshooting: SISPA Protocol  
-
-<iframe src="pdf/Protocol_SISPA.pdf" width="100%" height="600px">  
-
+  
 ### cDNA Synthesis  
 
 ```{r, echo=FALSE}
@@ -1017,7 +1019,9 @@ knitr::kable(cDNA_synthesis, format = "html", escape = FALSE, col.names = NULL) 
   row_spec(1:3, background = "#f2f2f2") %>%
   add_header_above(c("Step" = 1, "Mechanistic Detail" = 1, "Troubleshooting" = 1))
 ```
-### Double-strand synthesis  
+
+### Double-strand synthesis
+
 ```{r, echo=FALSE}
 double_strand <- data.frame(
   `Step` = c(
@@ -1048,7 +1052,7 @@ knitr::kable(double_strand, format = "html", escape = FALSE, col.names = NULL) %
   add_header_above(c("Step" = 1, "Mechanistic Detail" = 1, "Troubleshooting" = 1))
 ```
 
-### cDNA Amplification  
+### cDNA Amplification
 
 ```{r, echo=FALSE}
 cDNA_amplification <- data.frame(
@@ -1080,7 +1084,7 @@ knitr::kable(cDNA_amplification, format = "html", escape = FALSE, col.names = NU
   add_header_above(c("Step" = 1, "Mechanistic Detail" = 1, "Troubleshooting" = 1))
 ```
 
-### Clean-up of cDNA amplicon  
+### Clean-up of cDNA amplicon
 
 ```{r, echo=FALSE}
 cleanup_cDNA <- data.frame(
@@ -1145,7 +1149,7 @@ knitr::kable(cleanup_cDNA, format = "html", escape = FALSE, col.names = NULL) %>
   add_header_above(c("Step" = 1, "Mechanistic Details" = 1, "Troubleshooting" = 1))
 ```
 
-### End Prep and Barcode Ligation  
+### End Prep and Barcode Ligation
 
 ```{r, echo=FALSE}
 end_prep_barcode <- data.frame(
@@ -1183,7 +1187,8 @@ knitr::kable(end_prep_barcode, format = "html", escape = FALSE, col.names = NULL
   add_header_above(c("Step" = 1, "Mechanistic Details" = 1, "Troubleshooting" = 1))
 ```
 
-### Cleanup of barcoded DNA  
+### Cleanup of barcoded DNA
+
 ```{r, echo=FALSE}
 cleanup_barcoded <- data.frame(
   `Step` = c(
