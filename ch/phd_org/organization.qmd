@@ -1,0 +1,1271 @@
+---
+title: "Lab Work Organization"
+abstract: "Sample prep, RNA extraction, RT-qPCR, cDNA conversion, library prep, ONT sequencing, etc."
+prefer-html: true
+---
+
+## Troubleshooting: Sample Preparation
+
+```{r, echo = FALSE}
+pacman::p_load(
+  tidyverse, 
+  kableExtra,
+  downlit,
+  xml2
+)
+sample_prep <- data.frame(
+  `Step` = c(
+    "1. Get 50 mosquitoes from insectary.",
+    "2. Make 5 pools each consisting of 10 mosquitoes in 2ml tubes containing steel balls.",
+    "3. Make 3 Medium aliquots containing 2ml medium each.",
+    "4. Add 10^4/ml particles to one 2ml aliquot -> mix.",
+    "5. Add 10^6/ml particles to the second 2ml aliquot -> mix.",
+    "6. Add 750µl of the 10^4 solution to two pools each and 250µl of the 10^4 solution to Trizol LS (Sample 1).",
+    "7. Add 750µl of the 10^6 solution to two pools each and 250µl of the 10^6 solution to Trizol LS (Sample 2).",
+    "8. Add 750µl of the control medium to the last mosquito pool and 250µl of the medium to Trizol LS (Sample 3).",
+    "9. Store Trizol LS samples @ -80°C.",
+    "10. Homogenize the pools 2 min @ 30 Hz.",
+    "11. Centrifuge all samples for 3 min @ 20000g.",
+    "12. Take 250µl of the supernatant of the smaller control and pools and add it to Trizol LS -> -80°C (Samples 4-6).",
+    "13. Transfer the remaining supernatant to a fresh tube (for all pools).",
+    "14. Centrifuge for 10 min @ 20000g.",
+    "14_1. Take out the plunger from a filtering syringe, and put the empty cylinder on top of a new tube.",
+    "14_2. Transfer the sample into the empty cylinder.",
+    "14_3. Hold the cylinder firmly, and insert the plunger. Push it to filter the sample through the filter. Some dead volume will not be passed through.",
+    "15. Transfer supernatant/filtered volume to ultracentrifuge tubes.",
+    "16. Underlay the sample with 20% Sucrose in PBS.",
+    "17. Pellet particles 1h @ 483 750 g (or higher).",
+    "18. Carefully remove supernatant (best by careful decanting).",
+    "19. Leave the tubes bottoms up for a few minutes to drain any fluid.",
+    "20. Add 1ml Trizol to the pellets (Samples 7-11) -> store @ -80°C till processing."
+  ),
+  `Mechanistic Details` = c(
+    "1. Obtain the necessary number of mosquitoes for the experiment.",
+    "2. Pooling increases sample size and reduces variability.",
+    "3. Medium is used as a negative control.",
+    "4. Create a spike-in sample with a known concentration of particles.",
+    "5. Create a spike-in sample with a higher concentration of particles.",
+    "6. Spike-in controls help assess extraction efficiency.",
+    "7. Spike-in controls help assess extraction efficiency.",
+    "8. The control medium sample serves as a baseline for comparison.",
+    "9. Trizol LS preserves RNA/DNA integrity.",
+    "10. Disrupts mosquito tissues and releases nucleic acids.",
+    "11. Separates cellular debris from the supernatant containing nucleic acids.",
+    "12. Collects a representative sample for later RNA/DNA extraction.",
+    "13. Removes debris and potential inhibitors from the supernatant.",
+    "14. Further clarifies the supernatant.",
+    "14_1. Prepare the syringe for filtration.",
+    "14_2. Begin the filtration process.",
+    "14_3. Complete the filtration step.",
+    "15. Prepare for ultracentrifugation.",
+    "16. Sucrose cushion helps to concentrate particles during ultracentrifugation.",
+    "17. Ultracentrifugation pellets particles.",
+    "18. Removes unwanted supernatant.",
+    "19. Ensure all supernatant is removed.",
+    "20. Trizol preserves RNA/DNA in the pelleted particles."
+  ),
+  `Troubleshooting` = c(
+    "1. Ensure mosquitoes are healthy and of the correct species/strain.",
+    "2. Avoid cross-contamination between pools.",
+    "3. Prepare medium under sterile conditions.",
+    "4. Verify particle concentration and mix thoroughly.",
+    "5. Verify particle concentration and mix thoroughly.",
+    "6. Pipette accurately to ensure proper spike-in concentrations.",
+    "7. Pipette accurately to ensure proper spike-in concentrations.",
+    "8. Ensure control medium is sterile and particle-free.",
+    "9. Maintain consistent -80°C storage for all samples.",
+    "10. Check homogenizer settings and ensure thorough disruption.",
+    "11. Use appropriate centrifuge settings and time.",
+    "12. Avoid disturbing the pellet when collecting supernatant.",
+    "13. Transfer supernatant carefully to avoid contamination.",
+    "14. Check centrifuge settings and time.",
+    "14_1. Ensure the filter is compatible with the sample type.",
+    "14_2. Avoid spilling or losing sample during transfer.",
+    "14_3. Apply consistent pressure to the plunger for even filtration.",
+    "15. Use appropriate ultracentrifuge tubes.<br>
+    These tubes are in the ultrcentrifugation room in the closet.",
+    "16. Prepare sucrose solution accurately.<br> 
+    Find out the heaviest one and add PBS to other tubes to make the same volume.<br> 
+    Add 1.2mL PBS first to the sample and then add the 20% sucrose.",
+    "17. Use correct ultracentrifuge settings and time.<br> 
+    We need 60WS to get 48375g.",
+    "18. Avoid disturbing the pellet when removing supernatant.",
+    "19. Complete drainage before proceeding to the next step.",
+    "20. Add Trizol directly to the pellet to prevent degradation."
+  )
+)
+```
+
+-   Extract all trizol samples according to manufacturers protocol
+-   Add glycogen (0.5µl) for the samples after the sucrose cushion (samples 7-11).
+-   Determine viral RNA content through RT-qPCR.
+
+```{r, echo=FALSE}
+# Generate HTML table
+knitr::kable(sample_prep, format = "html", escape = FALSE, col.names = NULL) %>%
+  kable_styling(bootstrap_options = c("striped", "hover"), full_width = TRUE) %>%
+  column_spec(1, width = "50%") %>%
+  column_spec(2, width = "25%") %>%
+  column_spec(3, width = "25%") %>%
+  row_spec(1:3, background = "#f2f2f2") %>% 
+  add_header_above(c("Step" = 1, "Mechanistic Details" = 1, "Comments for Troubleshooting" = 1))
+```
+
+## Troubleshooting: RNA Extraction
+
+### Procedural Guidelines
+
+-   Perform all steps at room temperature (20–25°C) unless otherwise noted.\
+-   Use cold TRIzol™ Reagent if the starting material contains high levels of RNase, such as spleen or pancreas samples.\
+-   Use disposable, individually wrapped, sterile plastic ware and sterile, disposable RNase-free pipettes & pipette tips, and tubes.\
+-   Wear disposable gloves while handling reagents and RNA samples to prevent RNase contamination from the surface of the skin; change gloves frequently, particularly as the protocol progresses from crude extracts to more purified materials.\
+-   Always use proper microbiological aseptic techniques when working with RNA.\
+-   Use RNaseZap™ RNase Decontamination Solution (Cat. no. AM9780) to remove RNase contamination from work surfaces and non-disposable items such as centrifuges and pipettes used during purification.
+
+### Lyse samples and separate phases
+
+1.  Lyse and homogenize samples in TRIzol™ Reagent according to your starting material.
+
+-   Tissues:\
+    Add 1 mL of TRIzol™ Reagent per 50–100 mg of tissue to the sample and homogenize using a homogenizer.
+
+-   Cell grown in monolayer:\
+
+a.  Remove growth media.\
+b.  Add 0.3–0.4 mL of TRIzol™ Reagent per 1 × $10^{5}—10^{7}$ cells directly to the culture dish to lyse the cells.\
+c.  Pipet the lysate up and down several times to homogenize.
+
+-   Cells grown in suspension:\
+
+a.  Pellet the cells by centrifugation and discard the supernatant.\
+b.  Add 0.75 mL of TRIzol™ Reagent per 0.25 mL of sample (5–10 × $10^{6}$ cells from animal, plant, or yeasty origin or 1 × $10^{7}$ cells of bacterial origin) to the pellet.\
+    *Note:* Do not wash cells before addition of TRIzol™ Reagent to avoid mRNA degradation.\
+c.  Pipette the lysate up and down several times to homogenize.\
+    **Note:** The sample volume should not exceed 10% of the volume of TRIzol™ Reagent used for lysis.
+
+**STOPPING POINT** Samples can be stored at 4°C overnight or at –20°C for up to a year.
+
+2.  **(Optional)** If samples have a high fat content, centrifuge the lysate for 5 minutes at 12,000 g at 4–10°C, then transfer the clear supernatant to a new tube.
+
+```{r, echo = FALSE}
+lyse_sample <- data.frame(
+  `Step` = c(
+    "3. Incubate for 5 minutes to permit complete dissociation of the nucleoproteins complex.",
+    "4. Add 0.2 mL of chloroform per 1 mL of TRIzol™ Reagent used for lysis, then securely cap the tube.",
+    "5. Incubate for 2–3 minutes.",
+    "6. Centrifuge the sample for 15 minutes at 12,000 × g at 4°C. The mixture separates into a lower red phenol-chloroform, and interphase, and a colorless upper aqueous phase.",
+    "7. Transfer the aqueous phase containing the RNA to a new tube by angling the tube at 45° and pipette the solution out."
+  ),
+  `Mechanistic Detail` = c(
+    "3. Incubation allows the denaturing agents in TRIzol to disrupt cellular structures and dissolve membranes.",
+    "4. Chloroform further denatures proteins and promotes phase separation.",
+    "5. This step enhances phase separation and ensures thorough mixing.",
+    "6. Centrifugation causes the sample to separate into distinct layers based on density.",
+    "7. The aqueous phase contains RNA, while DNA and proteins are in the interphase and organic phase, respectively."
+  ),
+  `Troubleshooting` = c(
+    "3. If complete dissociation doesn't occur, increase incubation time or use a higher concentration of TRIzol.",
+    "4. Ensure proper mixing of chloroform and TRIzol. Vortex briefly after adding chloroform.",
+    "5. Check sample temperature to ensure it's close to room temperature.",
+    "6. Ensure correct centrifuge speed and time. Incomplete separation may indicate issues with centrifugation.",
+    "7. Use a micropipette with a wide-bore tip to avoid shearing RNA. Be careful not to disturb the interphase."
+  )
+)
+
+# Generate HTML table
+knitr::kable(lyse_sample, format = "html", escape = FALSE, col.names = NULL) %>%
+  kable_styling(bootstrap_options = c("striped", "hover"), full_width = TRUE) %>%
+  column_spec(1, width = "50%") %>%
+  column_spec(2, width = "25%") %>%
+  column_spec(3, width = "25%") %>%
+  row_spec(1:3, background = "#f2f2f2") %>% 
+  add_header_above(c("Step" = 1, "Mechanistic Details" = 1, "Comments for Troubleshooting" = 1))
+```
+
+**IMPORTANT!** Avoid transferring any of the interphase or organic layer into the pipette when removing the aqueous phase. <br>
+
+Proceed directly to "Isolate RNA" on page 2.<br>
+
+Save the interphase and organic phase if you want to isolate DNA or protein. See "Isolate DNA" on page 3 or "Isolate proteins" on page 4 for detailed procedures. The organic phase can be stored at 4°C overnight.
+
+## Troubleshooting: RT-qPCR
+
+-   I will make a shiny app for the calculation online for any number of `#sample`.
+
+**N.B.** For the NTC, we need everything except the RNA sample (use RNase-free water instead of sample).
+
+-   Using `WNV-Ag-ID-Path.prcl` One-Step RT-PCR protocol.
+
+::: {.column width="90%"}
+![RT-qPCR Run Info](../../img/RTqPCR_info.png)
+:::
+
+-   There are 6 steps in the RT-qPCR. Here goes the mechanistic details of the steps:
+
+```{r, echo=FALSE}
+RTqPCR_mechanism <- data.frame(
+  Steps = c(
+    "Step 1: Reverse Transcription (RT)",
+    "Step 2: Initial Denaturation and Enzyme Activation",
+    "Step 3: Denaturation",
+    "Step 4: Annealing",
+    "Step 5: Extension",
+    "Step 6: Data Acquisition and Analysis"
+  ),
+  Mechanism = c(
+    "The reverse transcriptase enzyme is active at this temperature, converting the RNA template into complementary DNA (cDNA). This is a crucial step as qPCR amplifies DNA, not RNA.",
+    "The high temperature serves two purposes: <br>
+    Denaturation: Separates double-stranded RNA/DNA into single strands, making them accessible for primers. <br>
+    Hot-start activation: Activates the hot-start Taq polymerase, which prevents non-specific amplification at lower temperatures.",
+    "Repeated in each cycle, this step ensures complete separation of newly synthesized DNA strands, allowing primers to bind in the next step.",
+    "The primers, designed to be complementary to specific regions of the target DNA, bind (anneal) to their respective targets. Lowering the temperature facilitates this binding.",
+    "The Taq polymerase extends the primers, synthesizing new complementary DNA strands. This results in the doubling of the target DNA in each cycle.",
+    "The duration varies (usually a brief step at a temperature between annealing and extension) <br>
+    FAM Fluorescence: The machine measures the fluorescence of the FAM dye, which is typically incorporated into the amplifying DNA (either through a probe or intercalating dye like SYBR Green). The FAM signal increases proportionally with the amount of target DNA. <br>
+    ROX Fluorescence: The ROX dye acts as a passive reference. Its fluorescence should remain constant throughout the run. The machine uses the ROX signal to normalize the FAM signal, correcting for well-to-well variations and potential errors in pipetting." 
+  )
+)
+
+knitr::kable(RTqPCR_mechanism, format = "html", escape = FALSE) %>%
+  kable_styling(bootstrap_options = c("striped", "hover"), full_width = TRUE) %>%
+  column_spec(1, width = "20%") %>%
+  column_spec(2, width = "80%") %>%
+  row_spec(1:2, background = "#f2f2f2")
+```
+
+### Organizational Stuffs
+
+-   Reagents are in -20°C fridge (opposite of -80°C fridge).\
+-   Turn on all the switches on the sample hood and rotate the key to turn on. Take the slash up (folded).\
+-   Look if the scissor is there to cut your plate and sealing accordingly.\
+-   Print out the design and keep there to organize the Master Mix (MM) and samples accordingly. Use FAM and ROX for this experiment.\
+-   Keep the enzyme mix always on the cooling block till use.\
+-   Take gloves.\
+-   The cooling blocks change color depending on how hot they are.\
+-   Take 10µL, 20µL, 100µL, 200µL tip boxes if needed. Pipettes are there already inside the hoods.\
+-   Samples on ice.\
+-   Take 1 black box and take ice in it (from downstairs, left hand side while entering). Put the ice boxes in it.\
+-   Take another black box with plate & sealing (touch only with gloves).\
+-   Take 2 Eppendorf tube holders, one for sample and one for H2O, Buffer.\
+-   Touch the RNA sample and reagents only with gloves.\
+-   Keep FAM and Enzyme inside the black box, because it is color sensitive.\
+-   Take the small white box to keep the well plate (with sealing) on the ice box inside it to remove potential contamination issue. Take out when needed after making the MM.\
+-   Clean the MM hood and Sample hood with alcohol first and then start working/putting things inside.\
+-   The centrifuge machine for well plate works this way: Turn on --\> Place the plate --\> Run for 10-20 secs --\> Take out --\> Turn off\
+-   Use the first point to pipette off the 11.5 µL MM, don't push too much. A bit will remain in the tip. That's fine. It will be the same for all the wells. No air bubble (aerosol) will be formed this way.
+
+```{r, echo=FALSE}
+RT_qPCR_org <- data.frame(
+  Consumables = c(
+    "Cooling blocks (blue and yellow) for PCR tubes and reagents",
+    "RNase-free water",
+    "2x RT-PCR buffer (has things for ROX)",
+    "25x RT-PCR enzyme mix (Rev Transcriptase + Pol)",
+    "FAM mix (Primer + Probe)",
+    "96-Well-Plate + sealing",
+    "RNA Sample(s)",
+    "A waste bag",
+    "Scissors"
+  ),
+  Location = c(
+    "Shelf XIV, middle room",
+    "Rack A, Box 3",
+    "Rack A, Box 3",
+    "Rack A, Box 3",
+    "Rack B2, Box 2",
+    "Top-right drawer of RNA side",
+    "-80°C fridge (Rack N, Box 4)",
+    "You know where",
+    "Inside MM hood or you take"
+  )
+)
+
+
+# Generate HTML table
+knitr::kable(RT_qPCR_org, format = "html", escape = FALSE) %>%
+  kable_styling(bootstrap_options = c("striped", "hover"), full_width = TRUE) %>%
+  column_spec(1, width = "65%") %>%
+  column_spec(2, width = "35%") %>%
+  row_spec(1:2, background = "#f2f2f2")
+```
+
+-   No. of sample = depends on your experiment & used in the equation to calculate the total volume of MM.\
+-   Take the waste bag out of MM hood to the sample hood, never the other way around.\
+-   Design the well-plate beforehand using correct fluorophores (FAM/ROX), standard samples, concentration of the standards, unknown and/or negative samples, NTC, biological/technical replicates, etc.\
+-   Prepare the reaction mix following this exact order. **& See the points on precautions below:**
+
+```{r, echo=FALSE}
+no_sample <- 18
+no_NTC = 2
+no_repeat = 2
+tot_well = no_sample*no_repeat + no_NTC
+RT_qPCR <- data.frame(
+  Reagent = c(
+    "RNase-free water (100µL aliquot)",
+    "2x RT-PCR buffer (130µL aliquot?)",
+    "FAM mix (10µL aliquot)",
+    "25x RT-PCR enzyme mix (10µL aliquot)",
+    "Total vol of MM",
+    "RNA template (20µL)",
+    "Total vol of reaction mix"
+  ),
+  x_1 = c(3.75, 6.25, 1.0, 0.5, 11.5, 1, 12.5)
+)
+
+# Calculate 20x efficiently AFTER the data frame is created
+RT_qPCR$x_new <- RT_qPCR$x_1 * tot_well
+#as.factor(RT_qPCR$x_1)
+#set the RNA sample row correctly, total amount/vol doesn't make sense here.
+RT_qPCR$x_new <- ifelse(RT_qPCR$Reagent == "RNA template (20µL)", "x", RT_qPCR$x_new)
+RT_qPCR$Mechanism <- c(
+  "To make the correct volume",
+  "Has buffering activity and ROX for internal control",
+  "Has primer pairs and probe for amplification and fluorophore detection, respectively",
+  "Has the polymerase for amplification",
+  "X",
+  "Inital element/RNA for RT-qPCR",
+  "X")
+
+knitr::kable(RT_qPCR, format = "html", escape = FALSE, col.names = NULL) %>%
+  kable_styling(bootstrap_options = c("striped", "hover"), full_width = TRUE) %>%
+  column_spec(1, width = "30%") %>%
+  column_spec(2, width = "15%") %>%
+  column_spec(3, width = "15%") %>%
+  column_spec(4, width = "40%") %>%
+  row_spec(1:3, background = "#f2f2f2") %>%
+  add_header_above(setNames(c(1, 1, 1, 1), c("Reagent", "1x (µL)", paste0(tot_well, "x (µL)"), "Mechanism")))
+```
+
+-   Cut the plate and the sealing accordingly using the scissors. Name/date & orientation should be written.\
+-   Turn on air circulation, & white light in the MM hood.\
+-   Vortex everything (MM, samples) before adding (so, prep the MM in a Eppendorf tube).\
+-   **MM handling:** Put the MM in each and every well carefully. Don't release the pipette inside the well or near the plate. Keep it held. Release only on the waste bag and discard. Otherwise, you might take something from the well and make aerosol (contaminant).\
+-   **Sample handling:** Don't press hard (second point), pipette multiple times and take carefully. Then put in the well carefully. Again follow the same procedure of pipetting.\
+-   Put on the sealing nicely; otherwise aerosol will form and disperse.\
+-   Clean, turn on the UV light in th MM hood.\
+-   Clean, turn off the switches in the sample hood. Turn on the UV. Go back after 20-30 mins to turn of the UV (for the sample hood, MM hood is automatic). Turn off using the key.\
+-   Centrifuge the plate in the other lab (Short pulse for 20 secs). **Procedure:** Open lid --\> Place on the plate --\> Switch on --\> Close lid --\> Hold the button for "Impuls" for 20 secs --\> Take out and turn off\
+-   RT-qPCR running: Open the program --\> Click on "open lid" --\> place on the well-plate as designed --\> Put a balance for even heat circulation (if not using the full plate) --\> Click on "close lid" --\> Choose the right options.\
+-   Run the RT-qPCR using the right protocol (`WNV-Ag-ID-Path.prcl`) and set the right location for saving the result.\
+-   Open the result using Bio-Rad CFX Maestro and explore!
+
+### Troubleshooting: Reverse Transcription
+
+-   [The main paper](https://www.tandfonline.com/doi/pdf/10.2144/01304pf02) should help us understanding and designing the primers. Primer (1) and (3) are needed.
+
+<iframe src="../../pdf/cDNA_MMLV.pdf" width="100%" height="600px">
+
+</iframe>
+
+The ONT protocol for direct cDNA sequencing also provides with the information about the primers required.
+
+::: {.column width="90%"}
+![cDNA conversion by ONT](../../img/cDNA_ONT.png)
+:::
+
+[Another website](https://eu.idtdna.com/pages/education/decoded/article/use-of-template-switching-oligos-(ts-oligos-tsos)-for-efficient-cdna-library-construction) is quite good for understanding as well.
+
+**Here goes the step-by-step mechanism.**
+
+![cDNA conversion mechanism](../../Video/cDNA_mechanism.gif){width="100%"}
+
+### DNase I treatment  
+
+### Removal of DNase I  
+
+### Polyadenylating using E. coli poly(A) polymerase  
+
+```{r, echo=FALSE}
+polyadenylation_protocol <- data.frame(
+  `Step` = c(
+    "1. Start with clean, non-polyadenylated RNA of interest. The sample should be EDTA-free, with no salts present.",
+    "2. In a 1.5 ml microcentrifuge tube, set up 3\u2019 polyadenylation reaction as follows: <br> 
+     * Non-polyadenylated RNA X \u03BCl \u2264 10 \u03BCg <br>
+     * 10X E. coli poly(A) polymerase buffer 2 \u03BCl 1X <br>
+     * ATP (10 mM) 2 \u03BCl 1 mM <br>
+     * Nuclease-free water 15-X \u03BCl <br>
+     * E. coli poly(A) polymerase (5 U/\u03BCl) 1 \u03BCl 5U <br>
+     * TOTAL 20 \u03BCl",
+    "3. Incubate at 37\u00B0C for 0.5\u20131.5 minutes.",
+    "4. After 0.5\u20131.5 minutes of incubation, stop the reaction by adding 5 \u03BCl of 50 mM EDTA (to a final concentration of 10 mM EDTA). Final volume will be 25 \u03BCl.",
+    "5. Add 45 \u03BCl of RNase-free SPRI beads to the reaction.",
+    "6. Incubate on a Hula Mixer for 5 minutes at room temperature.",
+    "7. Spin down the sample and pellet on a magnet. Keep the tube on the magnet and pipette off and discard the supernatant.",
+    "8. Keep the tube on the magnet and wash the beads with 200 \u03BCl of freshly-prepared 70% ethanol. Carefully turn the tube 180\u00B0 twice in the rack to wash pelleted beads. Pippette off and discard the supernatant.",
+    "9. Repeat the previous step for a total of two washes.",
+    "10. Briefly spin down and place the tube back on the magnet. Pipette off any residual ethanol. Allow to dry for 30 seconds, but do not dry the pellet to the point of cracking.",
+    "11. Remove the tube from the magnetic rack and resuspend the pellet in 12 \u03BCl of nuclease-free water. Incubate on ice for 5 minutes.",
+    "12. Pellet the beads on a magnet until the eluate is clear and colourless.",
+    "13. Remove and retain 12 \u03BCl of eluate containing the 3\u2019-polyadenylated RNA in a clean 1.5 ml microcentrifuge tube.",
+    "14. Remove 1 \u03BCl of final eluate and quantify the final concentration using HS RNA Qubit kit.",
+    "Optional step: Dilute the final eluate to 100 ng/\u03BCl and quantify 1 \u03BCl using Agilent 6000 Nano RNA kit, using total RNA or mRNA setting depending on the sample.",
+    "15. Store the final product at -80\u00B0C."
+  ),
+
+  `Mechanistic Details` = c(
+    "Ensures that the RNA sample is free of contaminants that could interfere with the polyadenylation reaction.",
+    "Combines the RNA template with the necessary reagents for polyadenylation, including the enzyme, buffer, ATP (the source of adenosine nucleotides), and nuclease-free water to adjust the final volume.",
+    "Provides the optimal temperature for the E. coli poly(A) polymerase enzyme to add adenosine nucleotides to the 3' end of the RNA molecules.",
+    "EDTA chelates divalent cations (like Mg2+), which are essential for the polymerase enzyme's activity, effectively stopping the reaction.",
+    "AMPure XP beads selectively bind to RNA, allowing for purification and removal of contaminants like enzymes, salts, and unincorporated nucleotides.",
+    "Mixing promotes efficient binding of RNA to the beads.",
+    "Magnetic separation facilitates removal of unwanted components in the supernatant.",
+    "Ethanol washes remove residual contaminants and salts from the beads.",
+    "Second wash further improves purity.",
+    "Removes any remaining ethanol, which can interfere with downstream steps.",
+    "Elution buffer releases the purified RNA from the beads. Incubation on ice helps maintain RNA integrity.",
+    "Magnetic separation collects the beads, leaving the purified RNA in the supernatant.",
+    "Collects the purified, polyadenylated RNA for further analysis or downstream applications.",
+    "Measures the concentration of the purified, polyadenylated RNA to assess yield and quality.",
+    "Provides additional information about RNA size distribution and integrity.",
+    "Long-term storage preserves the RNA for future use."
+  ),
+
+  `Troubleshooting` = c(
+    "If the RNA sample contains EDTA or salts, perform a cleanup step using ethanol precipitation or a commercial RNA purification kit.",
+    "Ensure accurate pipetting, especially with small volumes. Use high-quality, RNase-free reagents.",
+    "Ensure accurate temperature control and timing during incubation. Longer incubation times will result in longer poly(A) tails, but may decrease overall sequencing yield.",
+    "Ensure thorough mixing after adding EDTA to stop the reaction completely.",
+    "Ensure beads are well-mixed and at room temperature. Use the correct bead-to-sample ratio.",
+    "Use a thermomixer or rotator for consistent mixing.",
+    "Use a strong magnet and avoid disturbing the beads.",
+    "Use fresh 70% ethanol. Carefully turn the tube to ensure all beads are washed.",
+    "Repeat washing if the supernatant is still cloudy.",
+    "Avoid over-drying the beads, which can make elution difficult.",
+    "Use nuclease-free water for elution. Ensure complete resuspension of the beads.",
+    "Use a strong magnet and allow sufficient time for clear eluate.",
+    "Avoid transferring any beads with the eluate.",
+    "Ensure accurate calibration of the Qubit fluorometer. If yield is low, troubleshoot previous steps.",
+    "Ensure proper chip preparation and instrument calibration for the Agilent Bioanalyzer.",
+    "Maintain consistent -80\u00B0C storage to prevent RNA degradation."
+  )
+)
+
+knitr::kable(polyadenylation_protocol, format = "html", escape = FALSE, col.names = NULL) %>%
+  kable_styling(bootstrap_options = c("striped", "hover"), full_width = TRUE) %>%
+  column_spec(1, width = "40%") %>%
+  column_spec(2, width = "40%") %>%
+  column_spec(3, width = "20%") %>%
+  row_spec(1:3, background = "#f2f2f2") %>%
+  add_header_above(setNames(c(1, 1, 1), c("Step", "Mechanistic Details", "Troubleshooting")))
+```
+
+### Reverse Transcription and Strand-switching  
+
+```{r, echo=FALSE}
+rt_ss <- data.frame(
+  `Step` = c(
+    "1. Prepare the following reaction in a 0.2 ml PCR tube: <br>
+    
+      x μl poly A+ RNA, 100 ng <br>
+      2.5 μl VNP <br>
+      1 μl 10 mM dNTPs <br>
+      7.5-x μl RNase-free water",
+    "2. Mix gently by flicking the tube, and spin down",
+    "3. Incubate at 65°C for 5 minutes and then snap cool on a pre-chilled freezer block for 1 minute",
+    "4. In a separate tube, mix together the following: <br>
+    
+      4 μl 5x RT Buffer <br>
+      1 μl RNaseOUT <br>
+      1 μl Nuclease-free water <br>
+      2 μl Strand-Switching Primer (SSP)",
+    "5. Mix gently by flicking the tube, and spin down.",
+    "6. Add the strand-switching buffer to the snap-cooled, annealed mRNA, mix by flicking the tube and spin down.",
+    "7. Incubate at 42°C for 2 minutes in the thermal cycler.",
+    "8. Add 1 µl of Maxima H Minus Reverse Transcriptase. The total volume is now 20 µl.",
+    "9. Mix gently by flicking the tube, and spin down.",
+    "10. Incubate using the following protocol using a thermal cycler: <br>
+    Reverse transcription and strand-switching 90 mins @ 42°C (1 cycle) <br>
+    Heat inactivation 5 mins @ 85°C (1 cycle) <br>
+    Hold @ 4°C"
+  ),
+  `Mechanistic Details` = c(
+    "Combines mRNA template, VNP (a template switching oligo), dNTPs, and water. VNP anneals to the polyA tail of mRNA and provides a template for reverse transcription.",
+    "Ensures all components are well mixed and collects any condensation on the tube walls.",
+    "High temperature denatures RNA secondary structures. Snap cooling prevents re-formation of secondary structures and promotes annealing of VNP to the polyA tail.",
+    "Prepares the reverse transcription and strand-switching buffer containing the necessary reagents.",
+    "Ensures thorough mixing of components.",
+    "Combines the mRNA template with the RT and strand-switching buffer.",
+    "Allows the SSP to anneal to the mRNA/cDNA hybrid.",
+    "Adds the reverse transcriptase enzyme.",
+    "Ensures proper mixing of the enzyme with the reaction mixture.",
+    "Reverse transcriptase synthesizes cDNA from the mRNA template, and the strand-switching activity of the enzyme generates the second cDNA strand. Heat inactivation denatures the enzyme and stops the reaction."
+  ),
+  `Troubleshooting` = c(
+    "Ensure accurate quantification and integrity of RNA. Use high-quality, RNase-free water.",
+    "Avoid vigorous mixing, which can shear RNA.",
+    "Use a pre-chilled freezer block for efficient snap cooling.",
+    "Prepare the buffer fresh and keep it on ice. Ensure RNase-free conditions.",
+    "Avoid vigorous mixing, which can shear RNA.",
+    "Mix gently to avoid disrupting the annealed mRNA/VNP complex.",
+    "Ensure accurate temperature and timing in the thermal cycler.",
+    "Keep the enzyme on ice until use. Avoid pipetting errors.",
+    "Avoid vigorous mixing, which can shear the cDNA.",
+    "Ensure accurate temperature and timing in the thermal cycler."
+  )
+)
+
+knitr::kable(rt_ss, format = "html", escape = FALSE, col.names = NULL) %>%
+  kable_styling(bootstrap_options = c("striped", "hover"), full_width = TRUE) %>%
+  column_spec(1, width = "40%") %>%
+  column_spec(2, width = "40%") %>%
+  column_spec(3, width = "20%") %>%
+  row_spec(1:3, background = "#f2f2f2") %>%
+  add_header_above(setNames(c(1, 1, 1), c("Step", "Mechanistic Details", "Troubleshooting")))
+```
+
+### RNA Degradation and Second Strand Synthesis  
+
+```{r, echo=FALSE}
+RNA_deg <- data.frame(
+  `Step` = c("1. Add 1 µl RiboShredder or RNase Cocktail Enzyme Mix (ThermoFisher, cat # AM2286) to the reverse transcription reaction.",
+"2. Incubate the reaction for 10 minutes at 37° C in a thermal cycler.",
+"3. Resuspend the AMPure XP beads by vortexing.",
+"4. Transfer the sample to a clean 1.5 ml Eppendorf DNA LoBind tube.",
+"5. Add 17 µl of resuspended AMPure XP beads to the reaction and mix by flicking the tube.",
+"6. Incubate on a Hula mixer (rotator mixer) for 5 minutes at RT.",
+"7. Prepare 500 μl of fresh 70% ethanol in Nuclease-free water.",
+"8. Spin down the sample and pellet on a magnet. Keep the tube on the magnet, and pipette off the supernatant.",
+"9. Keep the tube on the magnet and wash the beads with 200 µl of freshly prepared 70% ethanol without disturbing the pellet. Remove the ethanol using a pipette and discard.",
+"10. Repeat the previous step.",
+"11. Spin down and place the tube back on the magnet. Pipette off any residual ethanol. Allow to dry for ~30 seconds, but do not dry the pellet to the point of cracking.",
+"12. Remove the tube from the magnetic rack and resuspend pellet in 20 µl Nuclease-free water.",
+"13. Incubate on a Hula mixer (rotator mixer) for 10 minutes at RT.",
+"14. Pellet the beads on the magnet until the eluate is clear and colourless.",
+"15. Remove and retain 20 µl of eluate into a clean 1.5 ml Eppendorf DNA LoBind tube.",
+"16. Prepare the following reaction in a 0.2 ml thin-walled PCR tube: <br>
+
+  25 μl 2x LongAmp Taq Master Mix <br>
+  2 μl PR2 Primer, 10 μM <br>
+  20 μl Reverse-transcribed sample from above <br>
+  3 μl Nuclease-free water",
+"17. Incubate using the following protocol: <br>
+94°C <br>
+
+- Time: 1 mins <br>
+- No. of cycles: 1 <br>
+50°C <br>
+- Time: 1 mins <br>
+- No. of cycles: 1 <br>
+65°C <br>
+- Time: 15 mins <br>
+- No. of cycles: 1 <br>
+4°C <br>
+- Time: ∞",
+"18. Resuspend the AMPure XP beads by vortexing.",
+"19. Transfer the sample to a clean 1.5 ml Eppendorf DNA LoBind tube.",
+"20. Add 40 µl of resuspended AMPure XP beads to the reaction and mix by flicking the tube.",
+"21. Incubate on a Hula mixer (rotator mixer) for 5 minutes at RT.",
+"22. Prepare 500 μl of fresh 70% ethanol in Nuclease-free water.",
+"23. Spin down the sample and pellet on a magnet. Keep the tube on the magnet, and pipette off the supernatant.",
+"24. Keep the tube on the magnet and wash the beads with 200 µl of freshly prepared 70% ethanol without disturbing the pellet.",
+"25. Remove the ethanol using a pipette and discard.",
+"26. Repeat the previous step.",
+"27. Spin down and place the tube back on the magnet. Pipette off any residual ethanol. Allow to dry for ~30 seconds, but do not dry the pellet to the point of cracking.",
+"28. Remove the tube from the magnetic rack and resuspend pellet in 21 µl Nuclease-free water.",
+"29. Incubate on a Hula mixer (rotator mixer) for 10 minutes at RT.",
+"30. Pellet the beads on the magnet until the eluate is clear and colourless.",
+"31. Remove and retain 21 µl of eluate into a clean 1.5 ml Eppendorf DNA LoBind tube.",
+"32. Analyse 1 µl of the strand-switched DNA for size, quantity and quality."
+  ),
+  
+  `Mechanistic Details` = c(
+    "Degrades any remaining RNA, preventing it from interfering with downstream applications.",
+    "Provides optimal temperature for RNase activity.",
+    "Ensures consistent bead suspension for efficient binding of cDNA.",
+    "Transfers the sample to a tube compatible with magnetic separation.",
+    "AMPure XP beads selectively bind to cDNA, allowing for purification.",
+    "Mixing promotes efficient binding of cDNA to the beads.",
+    "Prepares ethanol for washing the beads.",
+    "Magnetic beads are attracted to the magnet, separating them from the supernatant.",
+    "Ethanol wash removes impurities and salts from the beads.",
+    "Second wash further improves purity.",
+    "Removes any remaining ethanol.",
+    "Elute the purified cDNA from the beads.",
+    "Allows the cDNA to rehydrate and detach from the beads.",
+    "Magnetic separation collects the beads, leaving the purified cDNA in the supernatant.",
+    "Collects the purified cDNA for downstream applications.",
+    "Sets up the PCR reaction with LongAmp Taq polymerase, primers, and the cDNA template.",
+    "Initial denaturation, primer annealing, extension (second strand synthesis), and final hold.",
+    "Resuspends the AMPure XP beads for purification.",
+    "Transfers the sample to a tube compatible with magnetic separation.",
+    "AMPure XP beads bind to the amplified cDNA, allowing for purification.",
+    "Mixing promotes efficient binding of cDNA to the beads.",
+    "Prepares ethanol for washing the beads.",
+    "Magnetic separation collects the beads, separating them from the supernatant.",
+    "Ethanol wash removes impurities and salts from the beads.",
+    "Removes the ethanol wash.",
+    "Second wash further improves purity.",
+    "Removes any remaining ethanol.",
+    "Elute the purified double-stranded cDNA from the beads.",
+    "Allows the cDNA to rehydrate and detach from the beads.",
+    "Magnetic separation collects the beads, leaving the purified cDNA in the supernatant.",
+    "Collects the purified cDNA for downstream applications.",
+    "Assess the size distribution, concentration, and integrity of the cDNA to ensure it's suitable for further analysis."
+  ),
+  
+  `Troubleshooting` = c(
+    "Use fresh RNase enzyme. Ensure complete RNA degradation by checking for absence of RNA bands on a gel.",
+    "Verify accurate temperature control in the thermal cycler.",
+    "Vortex thoroughly until no clumps remain.",
+    "Avoid contamination by using clean tubes and pipette tips.",
+    "Use the correct volume of beads for the sample volume. Mix gently to avoid foaming.",
+    "Ensure proper rotation on the Hula mixer.",
+    "Prepare fresh ethanol and use high-quality, nuclease-free water.",
+    "Ensure the magnet is strong enough to hold the beads. Avoid disturbing the pellet when removing supernatant.",
+    "Use fresh 70% ethanol and pipette gently to avoid disturbing the beads.",
+    "Repeat washing if the supernatant is still cloudy.",
+    "Avoid over-drying the beads, which can make elution difficult.",
+    "Use the correct volume of nuclease-free water. Ensure complete resuspension.",
+    "Ensure proper rotation on the Hula mixer.",
+    "Use a strong magnet and allow sufficient time for clear eluate.",
+    "Avoid transferring any beads with the eluate.",
+    "Prepare the PCR master mix carefully. Avoid pipetting errors and ensure proper primer concentrations.",
+    "Verify correct thermal cycler settings. Check for amplification using gel electrophoresis.",
+    "Vortex thoroughly until no clumps remain.",
+    "Avoid contamination by using clean tubes and pipette tips.",
+    "Use the correct volume of beads for the sample volume. Mix gently to avoid foaming.",
+    "Ensure proper rotation on the Hula mixer.",
+    "Prepare fresh ethanol and use high-quality, nuclease-free water.",
+    "Ensure the magnet is strong enough to hold the beads. Avoid disturbing the pellet when removing supernatant.",
+    "Use fresh 70% ethanol and pipette gently to avoid disturbing the beads.",
+    "Ensure complete removal of ethanol.",
+    "Repeat washing if the supernatant is still cloudy.",
+    "Avoid over-drying the beads, which can make elution difficult.",
+    "Use the correct volume of nuclease-free water. Ensure complete resuspension.",
+    "Ensure proper rotation on the Hula mixer.",
+    "Use a strong magnet and allow sufficient time for clear eluate.",
+    "Avoid transferring any beads with the eluate.",
+    "Use appropriate methods for analysis, such as Bioanalyzer or gel electrophoresis."
+  )
+)
+
+knitr::kable(RNA_deg, format = "html", escape = FALSE, col.names = NULL) %>%
+  kable_styling(bootstrap_options = c("striped", "hover"), full_width = TRUE) %>%
+  column_spec(1, width = "40%") %>%
+  column_spec(2, width = "40%") %>%
+  column_spec(3, width = "20%") %>%
+  row_spec(1:3, background = "#f2f2f2") %>%
+  add_header_above(setNames(c(1, 1, 1), c("Step", "Mechanistic Details", "Troubleshooting")))
+```
+
+## Troubleshooting: MinION Sequencing
+
+I am basically doing gDNA and cDNA sequencing. There are some subtle differences in the protocols. Please, refer to the ONT guidelines for details. I am attaching the pdf here though. The reagents highlighted yellow are different in the 2 protocols. Check them out below.
+
+For gDNA sequencing using SQK-LSK109:\
+<iframe src="../../pdf/SQK-LSK109-XL.pdf" width="100%" height="600px"></iframe>
+
+For polyA tailing:\
+<iframe src="../../pdf/3-poly-rna-ecoli-pap.pdf" width="100%" height="600px"></iframe>
+
+For direct cDNA sequencing using SQK-DCS109:\
+<iframe src="../../pdf/cDNA_SQK-DCS109.pdf" width="100%" height="600px"></iframe>
+
+**The cDNA sequencing kit uses the same Ligation sequencing kit (SQK-LSK109) + Priming kit (EXP-FLP002). But the adapter mix could be different here (inherently) to ease addition of the adapters to the ds-cDNA sequences.**
+
+```{r, echo = FALSE}
+seq_diff <- data.frame(
+  Reagent = c(
+    "NEBNext FFPE Repair Mix (NEB, M6630)",
+    "Adapter Mix (AMX) and Quick T4 Ligase",
+    "E. coli Poly(A) Polymerase (NEB: M0276L)",
+    "50 mM RNase-free EDTA (Invitrogen: AM9260G)",
+    "NEB Blunt/TA Ligase Master Mix (M0367)",
+    "10 mM dNTP solution (e.g. NEB N0447)",
+    "LongAmp Taq 2X Master Mix (e.g. NEB M0287)",
+    "Maxima H Minus Reverse Transcriptase (200 U/μl) with 5x RT Buffer (ThermoFisher, cat # EP0751)",
+    "RNaseOUTTM, 40 U/μl (Life Technologies, cat # 10777019)",
+    "RiboShredder (Epicentre, cat # RS12500), or RNase Cocktail Enzyme Mix (ThermoFisher, cat # AM2286)",
+    "2.5 μl VNP/DTT",
+    "2 μl Strand-Switching Primer (SSP)",
+    "2 μl PR2 Primer, 10 μM"
+  ),
+  Function = c("Repair the end of the dsDNA. Not needed for cDNA",
+               "T4 DNA ligase lygate the adapter mix",
+               "Adds poly-A tail",
+               "Stops poly-A tailing after the required time period",
+               "Ligate the dA tail",
+               "Nucleotides to be added in the cDNA strands",
+               "Polymerase for 2nd strand synthesis",
+               "For 1st strand synthesis",
+               "To protect RNA template from any RNase",
+               "To degrade the RNA template before the 2nd strand synthesis",
+               "As a primer for the 1st strand synthesis, complementary to the poly-A tail in the RNA",
+               "Required for the Maxima H RT (modified MMLV) for full length+ 1st strand synthesis",
+               "Primer to initiate the 2nd strand synthesis"
+  ),
+  Protocol = c("gDNA seq",
+               "gDNA seq",
+               "cDNA seq",
+               "cDNA seq",
+               "cDNA seq",
+               "cDNA seq",
+               "cDNA seq",
+               "cDNA seq",
+               "cDNA seq",
+               "cDNA seq",
+               "cDNA seq",
+               "cDNA seq",
+               "cDNA seq"
+  )
+)
+
+# Generate HTML table
+knitr::kable(seq_diff, format = "html", escape = FALSE) %>%
+  kable_styling(bootstrap_options = c("striped", "hover"), full_width = TRUE) %>%
+  column_spec(1, width = "40%") %>%
+  column_spec(2, width = "40%") %>%
+  column_spec(3, width = "20%") %>%
+  row_spec(1:3, background = "#f2f2f2") #%>% 
+  #add_header_above(c("Step" = 1, "Mechanistic Details" = 1, "Comments for Troubleshooting" = 1))
+```
+
+### DNA Repair and End-prep  
+#### End-prep for cDNA sequencing  
+  
+**IMPORTANT**
+If you have prepared your own cDNA instead of performing reverse transcription using the Direct cDNA Sequencing Kit, please start this step with 70-200 ng cDNA in 20 µl Nuclease-free water.  
+
+```{r, echo=FALSE}
+end_prep <- data.frame(
+  `Step` = c("1. Perform end repair and dA-tailing of the cDNA sample as follows: <br>  
+             20 µl cDNA sample <br>
+             30 µl Nuclease-free water <br>
+             7 µl Ultra II End-prep reaction buffer <br>
+             3 µl Ultra II End-prep enzyme mix",
+  "2. Mix gently by pipetting and spin down.",
+  "3. Using a thermal cycler, incubate at 20°C for 5 minutes and 65°C for 5 minutes.",
+  "4. Resuspend the AMPure XP beads by vortexing.",
+  "5. Transfer the sample to a 1.5 ml DNA LoBind Eppendorf tube.",
+  "6. Add 60 µl of resuspended AMPure XP beads to the end-prep reaction and mix by pipetting.",
+  "7. Incubate on a Hula mixer (rotator mixer) for 5 minutes at RT.",
+  "8. Prepare 500 μl of fresh 70% ethanol in Nuclease-free water.",
+  "9. Spin down the sample and pellet on a magnet. Keep the tube on the magnet, and pipette off the supernatant.",
+  "10. Keep the tube on the magnet and wash the beads with 200 µl of freshly prepared 70% ethanol without disturbing the pellet. Remove the ethanol using a pipette and discard.",
+  "11. Repeat the previous step.",
+  "12. Spin down and place the tube back on the magnet. Pipette off any residual ethanol. Allow to dry for ~30 seconds, but do not dry the pellet to the point of cracking.",
+  "13. Remove the tube from the magnetic rack and resuspend pellet in 30 µl Nuclease-free water. Incubate for 2 minutes at RT.",
+  "14. Pellet the beads on the magnet until the eluate is clear and colourless, for at least 1 minute",
+  "15. Remove and retain 30 µl of eluate into a clean 1.5 ml Eppendorf DNA LoBind tube."
+  ),
+  
+  `Mechanistic Details` = c(
+    "Repairs any damaged DNA ends and adds an adenosine (A) nucleotide to the 3' ends of the cDNA, preparing it for ligation to sequencing adapters.",
+    "Ensures proper mixing of reagents.",
+    "Provides optimal temperature for enzymatic activity: 20°C for end repair and 65°C for A-tailing.",
+    "Ensures consistent bead suspension for efficient binding of cDNA.",
+    "Transfers the sample to a tube compatible with magnetic separation.",
+    "AMPure XP beads bind to the cDNA, allowing for purification and removal of excess reagents.",
+    "Mixing promotes efficient binding of cDNA to the beads.",
+    "Prepares ethanol for washing the beads.",
+    "Magnetic beads are attracted to the magnet, separating them from the supernatant.",
+    "Ethanol wash removes impurities and salts from the beads.",
+    "Second wash further improves purity.",
+    "Removes any remaining ethanol.",
+    "Elution buffer rehydrates the DNA and allows it to detach from the beads.",
+    "Magnetic separation collects the beads, leaving the purified DNA in the supernatant.",
+    "Collects the purified, end-repaired, and A-tailed cDNA for further processing."
+  ),
+  
+  `Troubleshooting` = c(
+    "Ensure proper enzyme activity and storage. Use high-quality reagents and follow the manufacturer's instructions.",
+    "Avoid vigorous mixing, which can damage DNA.",
+    "Ensure accurate temperature control and timing in the thermal cycler.",
+    "Vortex thoroughly until no clumps remain.",
+    "Use a clean tube to avoid contamination.",
+    "Use the correct volume of beads. Mix gently to avoid foaming.",
+    "Ensure proper rotation on the Hula mixer.",
+    "Prepare fresh ethanol and use high-quality nuclease-free water.",
+    "Use a strong magnet and avoid disturbing the pellet when removing supernatant.",
+    "Use fresh 70% ethanol. Pipette gently to avoid disturbing the beads.",
+    "Repeat the wash if the supernatant is cloudy.",
+    "Avoid over-drying the beads, which can hinder elution.",
+    "Use the correct volume of nuclease-free water. Ensure complete resuspension.",
+    "Use a strong magnet and allow sufficient time for clear eluate.",
+    "Avoid transferring any beads with the eluate."
+  )
+)
+
+knitr::kable(end_prep, format = "html", escape = FALSE, col.names = NULL) %>%
+  kable_styling(bootstrap_options = c("striped", "hover"), full_width = TRUE) %>%
+  column_spec(1, width = "40%") %>%
+  column_spec(2, width = "40%") %>%
+  column_spec(3, width = "20%") %>%
+  row_spec(1:3, background = "#f2f2f2") %>%
+  add_header_above(setNames(c(1, 1, 1), c("Step", "Mechanistic Details", "Troubleshooting")))
+```
+Take forward 30 µl of end-prepped cDNA into adapter ligation.  
+
+### Adapter Ligation for cDNA  
+
+```{r, echo=FALSE}
+ad_lig_cDNA <- data.frame(
+  `Step` = c("1. Check the contents of each tube are clear of any precipitate and are thoroughly mixed before setting up the reaction. <br>
+             Mix the contents of each tube by flicking.<br>
+             Check that there is no precipitate present (DTT in the Blunt/TA Master Mix can sometimes form a precipitate) <br>
+               Spin down briefly before accurately pipetting the contents in the reaction.",
+"2. Taking the end-prepped DNA, perform adapter ligation as follows, mixing by flicking the tube between each
+sequential addition. <br>
+30 µl End-prepped DNA <br>
+5 µl Adapter Mix <br>
+50 µl Blunt/TA Ligation Master Mix <br>
+15 µl Nuclease-free water",
+"3. Mix gently by flicking the tube, and spin down.",
+"4. Incubate the reaction for 10 minutes at RT."),
+  `Mechanistic Details` = c(
+    "Ensures that all reagents are properly mixed and no precipitates are present, which could interfere with the ligation reaction.",
+    "Combines the end-prepped cDNA with adapters and the ligation master mix. The adapters contain sequences necessary for sequencing and bridge amplification.",
+    "Ensures all components are well mixed and collects any condensation on the tube walls.",
+    "Provides optimal temperature for the ligase enzyme to join the adapters to the cDNA ends."
+  ),
+  `Troubleshooting` = c(
+    "If precipitate is observed, warm the tube briefly at 37°C and vortex gently until the precipitate dissolves.",
+    "Use fresh, high-quality reagents. Ensure accurate pipetting and avoid contamination.",
+    "Avoid vigorous mixing, which can damage DNA.",
+    "Ensure accurate temperature control. Avoid extending the incubation time, as this could lead to non-specific ligation."
+  )
+)
+
+knitr::kable(ad_lig_cDNA, format = "html", escape = FALSE, col.names = NULL) %>%
+  kable_styling(bootstrap_options = c("striped", "hover"), full_width = TRUE) %>%
+  column_spec(1, width = "40%") %>%
+  column_spec(2, width = "40%") %>%
+  column_spec(3, width = "20%") %>%
+  add_header_above(setNames(c(1, 1, 1), c("Step", "Mechanistic Details", "Troubleshooting")))
+```
+**Output: Adapted and tethered DNA library.**  
+
+### AMPure XP bead binding  
+  
+```{r, echo=FALSE}
+AMPure <- data.frame(
+  `Step` = c("1. Resuspend the AMPure XP beads by vortexing.",
+            "2. Add 40 µl of resuspended AMPure XP beads to the adapter ligation reaction from the previous step and mix by pipetting.",
+            "3. Incubate on a Hula mixer (rotator mixer) for 5 minutes at RT.",
+            "4. Place on a magnetic rack, allow beads to pellet and pipette off supernatant.",
+            "5. Add 200 μl of Wash Buffer (WSB) to the beads. Resuspend the beads by pipetting up and down. Return the tube to the magnetic rack, allow beads to pellet and pipette off the supernatant.",
+            "6. Repeat the previous step.",
+            "7. Spin down and place the tube back on the magnet. Pipette off any residual supernatant. Allow to dry for ~30 seconds, but do not dry the pellet to the point of cracking.",
+            "8. Remove the tube from the magnetic rack and resuspend pellet in 13 µl of Elution Buffer (EB).",
+            "9. Incubate on a Hula mixer (rotator mixer) for 10 minutes at RT.",
+            "10. Pellet the beads on a magnet until the eluate is clear and colourless.",
+            "11. Remove and retain 13 µl of eluate into a clean 1.5 ml Eppendorf DNA LoBind tube.",
+            "12. Quantify 1 µl of eluted cDNA using a Qubit fluorometer - recovery aim ~60 ng."
+  ),
+  `Mechanistic Details` = c(
+    "Ensures consistent bead suspension for efficient binding of DNA.",
+    "AMPure XP beads selectively bind to DNA fragments larger than a certain size, allowing for size selection and purification.",
+    "Mixing promotes efficient binding of DNA to the beads.",
+    "Magnetic separation collects the beads, separating them from the supernatant containing unwanted fragments and reagents.",
+    "Wash buffer removes impurities and salts from the beads.",
+    "Second wash further improves purity.",
+    "Removes any remaining wash buffer, which can interfere with downstream applications.",
+    "Elution buffer rehydrates the DNA and allows it to detach from the beads.",
+    "Incubation allows the DNA to fully rehydrate and elute from the beads.",
+    "Magnetic separation collects the beads, leaving the purified DNA in the supernatant.",
+    "Collects the purified DNA for downstream applications.",
+    "Measures the concentration of the purified cDNA to assess yield and quality."
+  ),
+  `Troubleshooting` = c(
+    "Vortex thoroughly until no clumps remain.",
+    "Use the correct volume of beads for the sample volume. Mix gently to avoid foaming.",
+    "Ensure proper rotation on the Hula mixer.",
+    "Use a strong magnet and avoid disturbing the pellet when removing supernatant.",
+    "Use fresh wash buffer and pipette gently to avoid disturbing the beads.",
+    "Repeat washing if the supernatant is still cloudy.",
+    "Avoid over-drying the beads, which can make elution difficult.",
+    "Use the correct volume of elution buffer. Ensure complete resuspension.",
+    "Ensure proper rotation on the Hula mixer.",
+    "Use a strong magnet and allow sufficient time for clear eluate.",
+    "Avoid transferring any beads with the eluate.",
+    "Ensure accurate calibration of the Qubit fluorometer. If yield is low, troubleshoot previous steps."
+  )
+)
+
+knitr::kable(AMPure, format = "html", escape = FALSE, col.names = NULL) %>%
+  kable_styling(bootstrap_options = c("striped", "hover"), full_width = TRUE) %>%
+  column_spec(1, width = "40%") %>%
+  column_spec(2, width = "40%") %>%
+  column_spec(3, width = "20%") %>%
+  row_spec(1:3, background = "#f2f2f2") %>%
+  add_header_above(setNames(c(1, 1, 1), c("Step", "Mechanistic Details", "Troubleshooting")))
+```
+**The prepared library is used for loading onto the flow cell. Store the library on ice until ready to load.**  
+
+### Priming and Loading on SpotON flowCell  
+
+```{r, echo=FALSE}
+loading <- data.frame(
+  `Step` = c("1. Thaw the Sequencing Buffer (SQB), Loading Beads (LB), Flush Tether (FLT) and one tube of Flush Buffer (FB) at RT before mixing the reagents by vortexing, and spin down the SQB, FB and FLT at RT.",
+             "2. Prepare the flow cell priming mix: Add 30 µl of thawed and mixed Flush Tether (FLT) directly to the tube of thawed and mixed Flush Buffer (FB), and mix by vortexing.",
+             "3. Open the MinION Mk1C lid and slide the flow cell under the clip.",
+             "4. Slide the priming port cover clockwise to open the priming port.",
+             "5. IMPORTANT: Take care when drawing back buffer from the flow cell. Do not remove more than 20-30 µl, and make sure that the array of pores are covered by buffer at all times. Introducing air bubbles into the array can irreversibly damage pores. <br>
+               After opening the priming port, check for a small air bubble under the cover. Draw back a small volume to remove any bubbles: <br>
+               Set a P1000 pipette to 200 µl <br>
+               Insert the tip into the priming port <br>
+               Turn the wheel until the dial shows 220-230 µl, to draw back 20-30 µl, or until you can see a small volume of buffer entering the pipette tip <br>
+               <br>
+               Note: Visually check that there is continuous buffer from the priming port across the sensor array.",
+             "6. Load 800 µl of the priming mix into the flow cell via the priming port, avoiding the introduction of air bubbles. Wait for five minutes. During this time, prepare the library for loading by following the steps below.",
+             "7. Thoroughly mix the contents of the Loading Beads (LB) by pipetting.",
+             "8. IMPORTANT: The Loading Beads (LB) tube contains a suspension of beads. These beads settle very quickly. It is vital that they are mixed immediately before use <br>
+               In a new tube, prepare the library for loading as follows: <br>
+               <br>
+               37.5 µl Sequencing Buffer (SQB) <br>
+               25.5 µl Loading Beads (LB), mixed immediately before use <br>
+               12 µl DNA library",
+             "9. Complete the flow cell priming: <br>
+               Gently lift the SpotON sample port cover to make the SpotON sample port accessible. <br>
+               Load 200 µl of the priming mix into the flow cell priming port (not the SpotON sample port), avoiding the introduction of air bubbles.",
+             "10. Mix the prepared library gently by pipetting up and down just prior to loading.",
+             "11. Add 75 μl of the prepared library to the flow cell via the SpotON sample port in a dropwise fashion. Ensure each drop flows into the port before adding the next.",
+             "12. Gently replace the SpotON sample port cover, making sure the bung enters the SpotON port and close the priming port.",
+             "13. IMPORTANT: Install the light shield on your flow cell as soon as the library has been loaded for optimal sequencing output. <br>
+               <br>
+               Place the light shield onto the flow cell, as follows: <br>
+               Carefully place the leading edge of the light shield against the clip. <br>
+               Note: Do not force the light shield underneath the clip. <br>
+               Gently lower the light shield onto the flow cell. The light shield should sit around the SpotON cover, covering the entire top section of the flow cell."
+  ),
+  
+  `Mechanistic Details` = c(
+    "Thawing and mixing reagents ensures they are at the correct temperature and consistency for optimal performance.",
+    "The priming mix prepares the flow cell for loading by coating the channels and pores with reagents that facilitate DNA binding and sequencing.",
+    "Provides access to the flow cell ports for loading reagents.",
+    "Opens the port for loading the priming mix.",
+    "Removes any air bubbles that may have formed under the priming port cover, which could interfere with flow cell function.",
+    "The priming mix helps to wet the flow cell channels and pores, ensuring proper fluid flow and DNA capture.",
+    "Ensures uniform distribution of beads for optimal library loading.",
+    "Combines the library with sequencing buffer and loading beads. The loading beads help to concentrate the library and facilitate its entry into the flow cell pores.",
+    "Completes the priming process, ensuring all channels and pores are properly coated and ready for sequencing.",
+    "Ensures the library is well mixed and evenly distributed before loading.",
+    "The SpotON port allows for gentle and controlled loading of the library onto the flow cell.",
+    "Prevents contamination and leakage of reagents.",
+    "The light shield protects the flow cell from ambient light, which can interfere with sequencing."
+  ),
+  
+  `Troubleshooting` = c(
+    "Ensure all reagents are completely thawed and mixed before use. Check for any signs of contamination or degradation.",
+    "Avoid introducing air bubbles into the priming mix. Mix gently to avoid foaming.",
+    "Handle the flow cell with care to avoid damage. Make sure it is properly seated under the clip.",
+    "Open the priming port slowly and carefully to prevent damage.",
+    "Use caution when drawing back buffer. Avoid removing too much or introducing air bubbles.",
+    "Avoid introducing air bubbles when loading the priming mix. Ensure the full volume is loaded.",
+    "Mix gently to avoid damaging the beads.",
+    "Mix the loading beads immediately before use to prevent settling. Avoid over-mixing, which can damage DNA.",
+    "Avoid introducing air bubbles when loading the priming mix. Ensure the full volume is loaded.",
+    "Mix gently to avoid damaging the DNA library.",
+    "Load the library slowly and carefully to avoid air bubbles or spills. Ensure complete loading.",
+    "Close the ports securely to prevent leakage.",
+    "Install the light shield gently to avoid damaging the flow cell. Make sure it is properly seated."
+  )
+)
+
+knitr::kable(loading, format = "html", escape = FALSE, col.names = NULL) %>%
+  kable_styling(bootstrap_options = c("striped", "hover"), full_width = TRUE) %>%
+  column_spec(1, width = "40%") %>%
+  column_spec(2, width = "40%") %>%
+  column_spec(3, width = "20%") %>%
+  row_spec(1:3, background = "#f2f2f2") %>%
+  add_header_above(setNames(c(1, 1, 1), c("Step", "Mechanistic Details", "Troubleshooting")))
+```
+Close the device lid and set up a sequencing run on MinKNOW.  
+
+## Troubleshooting: SISPA Protocol  
+
+<iframe src="pdf/Protocol_SISPA.pdf" width="100%" height="600px">  
+
+### cDNA Synthesis  
+
+```{r, echo=FALSE}
+cDNA_synthesis <- data.frame(
+  `Step` = c(
+    "1. Mix in a clean 0.2 ml PCR tube: <br> * 1 \u03BCl dNTP Mix (10 mM) <br> * 1 \u03BCl FR26RV-N (Stock = 50 \u03BCM) <br> * 11 \u03BCl Viral RNA (ideally the Cq should be <23-26, depending on the virus)",
+    "2. Incubate for 5 min at 65 \u00B0C in the thermal cycler. Place on ice for 1 min.",
+    "3. Pre-warm 5x SSIV Buffer at 37 \u00B0C for 10 minutes before use, mix by vortexing and spin down.",
+    "4. Add per sample: <br> * 4 \u03BCl SSIV buffer 5x <br> * 1 \u03BCl DTT 100 mM <br> * 1 \u03BCl RNase Inhibitor (RNase OUT; 40 U/\u03BCl) <br> * 1 \u03BCl SSIV Reverse Transcriptase (200 U/\u03BCl)",
+    "5. Close lids thoroughly, spin down quickly using bench top centrifuge",
+    "6. Place in the thermal cycler: 23 \u00B0C for 10 min, 50 \u00B0C for 50 min, 80 \u00B0C for 10 min, Hold at 4 \u00B0C"
+  ),
+
+  `Mechanistic Detail` = c(
+    "Combines the viral RNA template, dNTPs (building blocks for DNA synthesis), and the first SISPA primer (FR26RV-N). The primer contains a barcode sequence and random hexamers that will anneal to the viral RNA.",
+    "The high temperature denatures RNA secondary structures, making it more accessible for primer binding. The subsequent cooling on ice helps maintain the denatured state and promotes primer annealing.",
+    "Pre-warming the buffer ensures optimal enzyme activity during reverse transcription. Mixing and spinning down ensure homogeneity and prevent reagent loss due to condensation.",
+    "Provides the necessary buffer conditions, reducing agents (DTT), and RNase inhibitor to protect the RNA template and ensure efficient reverse transcription. The reverse transcriptase enzyme catalyzes the synthesis of cDNA from the RNA template.",
+    "Prevents evaporation and contamination during the reaction.",
+    "* 23 \u00B0C: Allows for primer annealing to the RNA template. <br> * 50 \u00B0C: Optimal temperature for reverse transcriptase activity, enabling cDNA synthesis. <br> * 80 \u00B0C: Inactivates the reverse transcriptase enzyme. <br> * 4 \u00B0C: Holds the reaction until further processing."
+  ),
+
+  `Troubleshooting` = c(
+    "Ensure accurate quantification and integrity of RNA. Use high-quality, RNase-free reagents. The Cq value of the viral RNA should be within the optimal range for efficient reverse transcription.",
+    "Verify accurate temperature control in the thermal cycler. Use a pre-chilled ice bath for rapid cooling.",
+    "Use a water bath or heat block for accurate temperature control. Mix gently to avoid introducing air bubbles.",
+    "Prepare the reaction mix on ice to minimize RNase activity. Use fresh, high-quality reagents. Avoid pipetting errors, especially with small volumes.",
+    "Ensure tubes are properly sealed. Use a balanced centrifuge for quick and efficient spin-down.",
+    "Verify accurate temperature control and timing in the thermal cycler."
+  )
+)
+
+knitr::kable(cDNA_synthesis, format = "html", escape = FALSE, col.names = NULL) %>%
+  kable_styling(bootstrap_options = c("striped", "hover"), full_width = TRUE) %>%
+  column_spec(1, width = "30%") %>%
+  column_spec(2, width = "40%") %>%
+  column_spec(3, width = "30%") %>%
+  row_spec(1:3, background = "#f2f2f2") %>%
+  add_header_above(c("Step" = 1, "Mechanistic Detail" = 1, "Troubleshooting" = 1))
+```
+### Double-strand synthesis  
+```{r, echo=FALSE}
+double_strand <- data.frame(
+  `Step` = c(
+    "1. Add 1 \u03BCl of Klenow polymerase (5 U/\u03BCl) per sample directly to the tube.",
+    "2. Close lids thoroughly, spin down quickly using bench top centrifuge",
+    "3. Place in the thermal cycler: 37 \u00B0C for 60 min, 75 \u00B0C for 10 min"
+  ),
+
+  `Mechanistic Detail` = c(
+    "Klenow polymerase, a DNA polymerase lacking 5'->3' exonuclease activity, synthesizes the second cDNA strand using the annealed SISPA primer as a template. This results in double-stranded cDNA with barcode sequences incorporated into both strands.",
+    "Prevents evaporation and contamination during the reaction.",
+    "* 37 \u00B0C: Optimal temperature for Klenow polymerase activity, allowing for efficient second strand synthesis. <br> * 75 \u00B0C: Inactivates the Klenow polymerase enzyme."
+  ),
+
+  `Troubleshooting` = c(
+    "Keep the Klenow polymerase on ice until use to maintain its activity. Avoid pipetting errors, especially with small volumes.",
+    "Ensure tubes are properly sealed. Use a balanced centrifuge for quick and efficient spin-down.",
+    "Verify accurate temperature control and timing in the thermal cycler."
+  )
+)
+
+knitr::kable(double_strand, format = "html", escape = FALSE, col.names = NULL) %>%
+  kable_styling(bootstrap_options = c("striped", "hover"), full_width = TRUE) %>%
+  column_spec(1, width = "30%") %>%
+  column_spec(2, width = "40%") %>%
+  column_spec(3, width = "30%") %>%
+  row_spec(1:3, background = "#f2f2f2") %>%
+  add_header_above(c("Step" = 1, "Mechanistic Detail" = 1, "Troubleshooting" = 1))
+```
+
+### cDNA Amplification  
+
+```{r, echo=FALSE}
+cDNA_amplification <- data.frame(
+  `Step` = c(
+    "1. Mix: <br> * 5 \u03BCl dsDNA <br> * 1 \u03BCl FR20RV (Stock 40 \u03BCM, final concentration 0.8 \u03BCM) <br> * 5 \u03BCl 10 X PfU Ultra II reaction Buffer <br> * 1.25 \u03BCl dNTP Mix 10 mM <br> * 1 \u03BCl PfU Ultra II Fusion HS DNA polymerase (keep on cooling rack) <br> * 36.75 \u03BCl Nuclease-free Water",
+    "2. Close lids thoroughly, spin down quickly using bench top centrifuge",
+    "3. Place in the thermal cycler: <br> * Denaturation 95 \u00B0C 1 min <br> * 45 Cycles <br> * 95 \u00B0C 20 sec <br> * 65 \u00B0C 20 sec <br> * 72 \u00B0C 3 min <br> * Final Extension 72 \u00B0C 3 min <br> * Hold 4 \u00B0C"
+  ),
+
+  `Mechanistic Detail` = c(
+    "Combines the double-stranded cDNA template, the second SISPA primer (FR20RV), dNTPs, buffer, and a high-fidelity DNA polymerase (PfU Ultra II Fusion HS). The second SISPA primer binds to the barcode sequences incorporated in the previous steps, enabling amplification of the cDNA.",
+    "Prevents evaporation and contamination during the reaction.",
+    "* 95 \u00B0C (Denaturation): Separates the double-stranded cDNA into single strands. <br> * 65 \u00B0C (Annealing): Allows the second SISPA primer to bind to the cDNA. <br> * 72 \u00B0C (Extension): The polymerase enzyme synthesizes new DNA strands, amplifying the cDNA. <br> * 45 Cycles: Repeats the denaturation, annealing, and extension steps to generate a sufficient amount of amplified cDNA. <br> * Final Extension: Ensures complete extension of all cDNA strands. <br> * 4 \u00B0C: Holds the reaction until further processing."
+  ),
+
+  `Troubleshooting` = c(
+    "Ensure accurate pipetting, especially with small volumes. Keep the polymerase enzyme on ice until use to maintain its activity. Use high-quality, nuclease-free water.",
+    "Ensure tubes are properly sealed. Use a balanced centrifuge for quick and efficient spin-down.",
+    "Verify accurate temperature control and timing in the thermal cycler. Optimize the number of PCR cycles if needed to achieve sufficient amplification without introducing artifacts."
+  )
+)
+
+knitr::kable(cDNA_amplification, format = "html", escape = FALSE, col.names = NULL) %>%
+  kable_styling(bootstrap_options = c("striped", "hover"), full_width = TRUE) %>%
+  column_spec(1, width = "30%") %>%
+  column_spec(2, width = "40%") %>%
+  column_spec(3, width = "30%") %>%
+  row_spec(1:3, background = "#f2f2f2") %>%
+  add_header_above(c("Step" = 1, "Mechanistic Detail" = 1, "Troubleshooting" = 1))
+```
+
+### Clean-up of cDNA amplicon  
+
+```{r, echo=FALSE}
+cleanup_cDNA <- data.frame(
+  `Step` = c(
+    "1. Transfer 25 \u03BCl of the dsDNA to a 1.5 mL DNA LoBind tubes; the spare dsDNA should be stored at 4 \u00B0C as backup.",
+    "2. Bring AMPure beads to room temperature. Mix the beads thoroughly before use! Add 1.8 x (sample volume) beads, e.g. for 25 \u03BCl sample add 45 \u03BCl beads;", 
+    "3. Mix sample thoroughly by pipetting up and down at least 15 x",
+    "4. Incubate at room temperature for 7 min on a thermomix (room temperature, 550 rpm)",
+    "5. Quickly centrifuge",
+    "6. Place tubes in the magnetic stand and leave tubes in the magnetic rack until elution (!)",
+    "7. After 5 minutes remove the supernatant slowly; hold the tube with one hand while opening the cap!",
+    "8. Add 1 ml 80 % ethanol and incubate for 30 sec at room temperature",
+    "9. Slightly rotate the tubes in the magnetic rack to concentrate the beads",
+    "10. Slowly remove the supernatant and discard the ethanol",
+    "11. Add another 1 ml 80 % ethanol and incubate for 30 sec at room temperature",
+    "12. Slowly remove the supernatant and discard the ethanol",
+    "13. Remove all remaining ethanol with a 10 \u03BCl pipet and a clean tip and let air dry for 10 min with the tube opened",
+    "14. Elution: Take the tube from the magnetic stand and add 25 \u03BCl nuclease-free water directly onto the beads. Resuspend the beads by pipette mixing. Incubate 2 min at room temperature. Place tube on magnetic stand and incubate for 10 min. Transfer the eluate containing the DNA into a clean reaction tube" 
+  ),
+  
+  `Mechanistic Details` = c(
+    "Transfer the amplified cDNA to a suitable tube for purification.",
+    "AMPure XP beads selectively bind DNA, allowing for purification and concentration.",
+    "Ensures efficient binding of cDNA to the beads.",
+    "Incubation allows the cDNA to bind to the beads.",
+    "Brief centrifugation ensures all liquid is at the bottom of the tube.",
+    "Magnetic separation facilitates removal of unwanted components.",
+    "Careful removal prevents disturbing the bound cDNA.",
+    "Ethanol washes remove contaminants and salts.",
+    "Helps concentrate the beads for efficient washing.",
+    "Removes the ethanol wash.",
+    "Second wash further improves purity.",
+    "Removes residual ethanol, which can interfere with downstream steps.",
+    "Ensure complete removal of ethanol before elution. Avoid over-drying the beads.",
+    "Elution buffer releases the purified cDNA from the beads."
+  ),
+  
+  `Troubleshooting` = c(
+    "Use LoBind tubes to minimize DNA loss.",
+    "Ensure beads are well-mixed and at room temperature. Use the correct bead-to-sample ratio.",
+    "Mix gently to avoid foaming or DNA damage.",
+    "Use a thermomixer or rotator for consistent mixing.",
+    "Ensure complete pelleting of beads before removing supernatant.",
+    "Use a strong magnet and avoid disturbing the beads.",
+    "Remove supernatant carefully to avoid losing beads.",
+    "Use fresh 80% ethanol.",
+    "Avoid excessive agitation, which can dislodge the beads.",
+    "Remove supernatant completely without disturbing the beads.",
+    "Use fresh 80% ethanol.",
+    "Remove supernatant completely without disturbing the beads.",
+    "Ensure complete removal of ethanol before elution. Avoid over-drying the beads.",
+    "Use nuclease-free water for elution. Ensure complete resuspension of the beads."
+  )
+)
+
+knitr::kable(cleanup_cDNA, format = "html", escape = FALSE, col.names = NULL) %>%
+  kable_styling(bootstrap_options = c("striped", "hover"), full_width = TRUE) %>%
+  column_spec(1, width = "30%") %>%
+  column_spec(2, width = "40%") %>%
+  column_spec(3, width = "30%") %>%
+  row_spec(1:3, background = "#f2f2f2") %>%
+  add_header_above(c("Step" = 1, "Mechanistic Details" = 1, "Troubleshooting" = 1))
+```
+
+### End Prep and Barcode Ligation  
+
+```{r, echo=FALSE}
+end_prep_barcode <- data.frame(
+  `Step` = c(
+    "1. Mix in a clean 1.5 ml DNA LoBind tube: <br> o 10 μl DNA <br> o 1.4 μl Ultra II End Reaction Buffer <br> o 0.6 μl Ultra II End Prep Enzyme Mix (keep in cooling rack or on ice)",
+    "2. Incubate using thermomix: 10 min Room Temperature, 5 min 65 °C, Place on ice 1 min.",
+    "3. Directly add: <br> o 2.5 μl NB(XX) barcode <br> ▪ e.g. Sample 1 = Barcode 06; Sample 2 = Barcode 07; Sample 03 = Barcode 08 <br> ▪ Note down which barcode was used for which sample (!) <br> o 14,5 μl Ultra II Ligation Master Mix <br> o 0,5 μl Ligation Enhancer",
+    "4. Incubate using thermomix: 20 min Room Temperature, 10 min 70 °C, Place on ice 1 min",
+    "5. POOL ALL SAMPLES in a single tube!"
+  ),
+  
+  `Mechanistic Details` = c(
+    "Combines the purified cDNA with the end-prep reaction mix, which contains enzymes for repairing DNA ends and adding a 3' adenine overhang.",
+    "Provides optimal temperatures for the end-repair and A-tailing reactions.",
+    "Adds a unique barcode to each sample, allowing for multiplexing during sequencing. The ligation master mix and enhancer facilitate the joining of the barcode to the cDNA.",
+    "Provides optimal temperatures for the ligation reaction.",
+    "Combines all barcoded samples into a single tube for further processing and sequencing."
+  ),
+  
+  `Troubleshooting` = c(
+    "Ensure proper enzyme activity and storage. Use high-quality reagents.",
+    "Verify accurate temperature control and timing in the thermomixer.",
+    "Use fresh, high-quality reagents. Keep the ligation mix and enhancer on ice until use.",
+    "Verify accurate temperature control and timing in the thermomixer.",
+    "Ensure thorough mixing of all samples before pooling."
+  )
+)
+
+knitr::kable(end_prep_barcode, format = "html", escape = FALSE, col.names = NULL) %>%
+  kable_styling(bootstrap_options = c("striped", "hover"), full_width = TRUE) %>%
+  column_spec(1, width = "30%") %>%
+  column_spec(2, width = "40%") %>%
+  column_spec(3, width = "30%") %>%
+  row_spec(1:3, background = "#f2f2f2") %>%
+  add_header_above(c("Step" = 1, "Mechanistic Details" = 1, "Troubleshooting" = 1))
+```
+
+### Cleanup of barcoded DNA  
+```{r, echo=FALSE}
+cleanup_barcoded <- data.frame(
+  `Step` = c(
+    "1. Add 29.5 μl AMPure XP beads per sample [equal volume (1:1) sample:beads]",
+    "2. Mix by pipetting and quickly centrifuge",
+    "3. Incubate for 5 min at room temperature",
+    "4. Place the sample on the magnetic rack",
+    "5. Incubate for at least 2 min until the supernatant is completely clear",
+    "6. Carefully remove the supernatant",
+    "7. Add 300 μl 70% ethanol to the tube still on the magnetic rack",
+    "8. Incubate 30 secs",
+    "9. Carefully remove the supernatant",
+    "10. Repeat last three steps (2nd ethanol wash)",
+    "11. Spin down and remove residual ethanol with the tube placed on the magnetic rack using a clean filter tip and a pipette.",
+    "12. Air dry 1 min",
+    "13. Resuspend in 30 μl EB by pipetting",
+    "14. Incubate off the magnetic rack for 2 min",
+    "15. Replace on magnetic rack",
+    "16. Transfer eluted DNA to a fresh 1.5 mL DNA LoBind tube",
+    "17. Label tube accordingly with an ethanol-resistant labmarker"
+  ),
+  
+  `Mechanistic Details` = c(
+    "AMPure XP beads selectively bind DNA, allowing for purification and concentration.",
+    "Ensures efficient binding of DNA to the beads.",
+    "Incubation allows the DNA to bind to the beads.",
+    "Magnetic separation facilitates removal of unwanted components.",
+    "Ensures complete binding of DNA to the beads.",
+    "Careful removal prevents disturbing the bound DNA.",
+    "Ethanol washes remove contaminants and salts.",
+    "Allows ethanol to penetrate and wash the beads.",
+    "Removes the ethanol wash.",
+    "Second wash further improves purity.",
+    "Removes residual ethanol, which can interfere with downstream steps.",
+    "Allows residual ethanol to evaporate.",
+    "Elution buffer releases the purified DNA from the beads.",
+    "Incubation allows the DNA to fully rehydrate and elute from the beads.",
+    "Magnetic separation collects the beads, leaving the purified DNA in the supernatant.",
+    "Collects the purified, barcoded DNA for further processing.",
+    "Ensures proper identification of the sample."
+  ),
+  
+  `Troubleshooting` = c(
+    "Ensure beads are well-mixed and at room temperature. Use the correct bead-to-sample ratio.",
+    "Mix gently to avoid foaming or DNA damage.",
+    "Use a thermomixer or rotator for consistent mixing.",
+    "Ensure complete pelleting of beads before removing supernatant.",
+    "Use a strong magnet and avoid disturbing the beads.",
+    "Remove supernatant carefully to avoid losing beads.",
+    "Use fresh 70% ethanol.",
+    "Avoid excessive agitation, which can dislodge the beads.",
+    "Remove supernatant completely without disturbing the beads.",
+    "Repeat washing if the supernatant is still cloudy.",
+    "Ensure complete removal of ethanol before elution. Avoid over-drying the beads.",
+    "Do not over-dry the beads, as this can make elution difficult.",
+    "Use the correct volume of elution buffer. Ensure complete resuspension of the beads.",
+    "Incubate at the correct temperature and time.",
+    "Use a strong magnet and allow sufficient time for clear eluate.",
+    "Avoid transferring any beads with the eluate.",
+    "Use a marker that won't smudge or fade when exposed to ethanol."
+  )
+)
+
+knitr::kable(cleanup_barcoded, format = "html", escape = FALSE, col.names = NULL) %>%
+  kable_styling(bootstrap_options = c("striped", "hover"), full_width = TRUE) %>%
+  column_spec(1, width = "30%") %>%
+  column_spec(2, width = "40%") %>%
+  column_spec(3, width = "30%") %>%
+  row_spec(1:3, background = "#f2f2f2") %>%
+  add_header_above(c("Step" = 1, "Mechanistic Details" = 1, "Troubleshooting" = 1))
+```
+
+## Troubleshooting: Data Analysis
+
+We knew the concentration/titer of the (Usutu) virus used to spike the mosquito pools. So, we have an expectation of the concentration of viruses in our samples. I tried to do the calculation for the expectation and compared with the predicted ones.
+
+Different steps of the genomic pipeline is done separately. Working on making the automated snakemake pipeline making.
+
+## Troubleshooting: FlowCell Count Issue
+
+It is fine. We used same FlowCell for multiple times (e.g. all LMD sequencing were done on 1 FlowCell, WNV_sup sample was run on the FlowCell used for the 5RNAvir cocktail run)
+
+## Troubleshooting: Contamination Issue
+
+I used the DCS reagent (1 µL) for all the samples using the LMD sequencing protocol. I should have use the direct cDNA sequencing protocol (SQK-DCS109) where I was supposed to use 1 µL more of the sample omitting the use of the DCS.

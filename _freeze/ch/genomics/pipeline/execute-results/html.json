@@ -1,0 +1,14 @@
+{
+  "hash": "625ea04497d4144c5656ae1f46dfa8ae",
+  "result": {
+    "markdown": "---\ntitle: \"Bioinformatics Pipelines Using Snakemake\"\nabstract: \"Automating pipelines, snakemake, HPC cluster, etc.\"\n---\n\n\n",
+    "supporting": [],
+    "filters": [
+      "rmarkdown/pagebreak.lua"
+    ],
+    "includes": {},
+    "engineDependencies": {},
+    "preserve": {},
+    "postProcess": true
+  }
+}

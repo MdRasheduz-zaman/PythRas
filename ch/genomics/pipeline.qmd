@@ -1,0 +1,9 @@
+---
+title: "Bioinformatics Pipelines Using Snakemake"
+abstract: "Automating pipelines, snakemake, HPC cluster, etc."
+---
+
+```{r}
+#| include: false
+source(here::here("src/helpersrc.R"))
+```
