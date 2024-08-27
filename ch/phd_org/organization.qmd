@@ -1261,6 +1261,11 @@ knitr::kable(cleanup_barcoded, format = "html", escape = FALSE, col.names = NULL
   add_header_above(c("Step" = 1, "Mechanistic Details" = 1, "Troubleshooting" = 1))
 ```
 
+### SISPA vs Maxima H Minus RT/SSP (MMLV RT)  
+  
+MMLV RT just make ssRNA to ds-cDNA. But for this, we need to add poly-A tail first. On the other hand, SISPA protocol has both ds-cDNA making step and amplification step of the cDNA using standard PCR protocol. So, we will have pre-amplified DNA samples out of the starting RNA material. And we don't need 3´ poly-A tailing since the primers are random hexamers (with barcode) here in this protocol.  
+
+
 ## Troubleshooting: Data Analysis
 
 We knew the concentration/titer of the (Usutu) virus used to spike the mosquito pools. So, we have an expectation of the concentration of viruses in our samples. I tried to do the calculation for the expectation and compared with the predicted ones.
